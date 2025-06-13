@@ -66,27 +66,30 @@ class LapanganController extends Controller
     public function update(Request $request, $id) {
         $lapangan = Lapangan::findOrFail($id);
 
-        // Ambil jam yang dipilih dari dropdown
-        $jamBaru = $request->input('waktu_booking');
+        // Ambil status dan jam yang dipilih
+        $status = $request->input('status');
+        $jam = $request->input('waktu_booking');
 
-        // Ambil daftar jam tidak tersedia yang sudah ada
-        $daftarJam = [];
-        if ($lapangan->waktu_booking) {
-            $daftarJam = array_map('trim', explode(',', $lapangan->waktu_booking));
+        // Ambil status_jam lama
+        $statusJam = [];
+        if ($lapangan->status_jam) {
+            $statusJam = json_decode($lapangan->status_jam, true) ?? [];
         }
 
-        // Tambahkan jam baru jika belum ada
-        if ($jamBaru && !in_array($jamBaru, $daftarJam)) {
-            $daftarJam[] = $jamBaru;
+        // Update status jam yang dipilih hanya jika diisi
+        if ($jam && $status) {
+            $statusJam[$jam] = $status;
+            $lapangan->status_jam = json_encode($statusJam);
         }
-
-        // Simpan kembali ke database
-        $lapangan->waktu_booking = implode(', ', $daftarJam);
+        // Jika tidak diisi, biarkan status_jam lama
 
         // Field lain tetap seperti biasa
         $lapangan->nama_lapangan = $request->judul;
         $lapangan->deskripsi_lapangan = $request->deskripsi;
-        $lapangan->status = $request->status;
+        // Update status hanya jika diisi
+        if ($status) {
+            $lapangan->status = $status;
+        }
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
             $lapangan->gambar = file_get_contents($file);

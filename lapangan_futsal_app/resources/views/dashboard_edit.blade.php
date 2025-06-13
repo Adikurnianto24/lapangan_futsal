@@ -15,7 +15,6 @@
         </div>
         <div class="edit-img-btn-row" style="margin-bottom:18px;">
             <button type="button" class="edit-img-btn" id="editImgBtn">Ubah Gambar</button>
-            <input type="file" id="editImgFile" name="gambar" style="display:none;">
         </div>
         @if(session('success'))
             <div style="background:#d4edda;color:#155724;padding:12px 18px;border-radius:8px;margin-bottom:18px;text-align:center;">{{ session('success') }}</div>
@@ -23,6 +22,7 @@
         <form id="editForm" method="POST" action="" enctype="multipart/form-data" style="width:100%;margin-top:8px;">
             @csrf
             @method('POST')
+            <input type="file" id="editImgFile" name="gambar" style="display:none;">
             <div class="input-group">
                 <label>Judul</label>
                 <input type="text" class="input-field" name="judul" id="editJudul">
@@ -90,7 +90,6 @@ document.querySelectorAll('.lapangan-dropdown-item').forEach(function(item) {
         // Isi form
         document.getElementById('editJudul').value = item.getAttribute('data-nama') || '';
         document.getElementById('editDeskripsi').value = item.getAttribute('data-deskripsi') || '';
-        document.getElementById('editStatus').value = item.getAttribute('data-status') || '';
         // Gambar
         const gambar = item.getAttribute('data-gambar');
         let imgHtml = '<div style="width:100%;height:100%;background:#ccc;"></div>';
@@ -100,24 +99,6 @@ document.querySelectorAll('.lapangan-dropdown-item').forEach(function(item) {
         document.getElementById('editImgPreview').innerHTML = imgHtml;
         // Set form action
         document.getElementById('editForm').action = '/lapangan/update/' + item.getAttribute('data-id');
-        // Highlight option waktu booking sesuai status
-        const waktuBookingSelect = document.getElementById('editWaktuBooking');
-        for (let i = 0; i < waktuBookingSelect.options.length; i++) {
-            const opt = waktuBookingSelect.options[i];
-            opt.style.background = '';
-            opt.style.color = '';
-            if (opt.value === item.getAttribute('data-waktu_booking')) {
-                if (item.getAttribute('data-status') === 'Tersedia') {
-                    opt.style.background = '#d4edda';
-                    opt.style.color = '#155724';
-                } else if (item.getAttribute('data-status') === 'Tidak tersedia') {
-                    opt.style.background = '#f8d7da';
-                    opt.style.color = '#721c24';
-                }
-            }
-        }
-        // Set selected waktu booking
-        waktuBookingSelect.value = item.getAttribute('data-waktu_booking') || '';
         // Centang jam tidak tersedia
         let statusJam = {};
         try { statusJam = JSON.parse(item.getAttribute('data-status_jam') || '{}'); } catch(e) {}
@@ -149,4 +130,18 @@ window.addEventListener('click', function(e) {
     }
 });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil diperbarui',
+            text: '',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
 @endsection 

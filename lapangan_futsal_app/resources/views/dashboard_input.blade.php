@@ -24,4 +24,18 @@
     </form>
     </div>
 </div>
-@endsection 
+@endsection
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil ditambahkan',
+            text: '',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif 

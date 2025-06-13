@@ -122,12 +122,12 @@ body {
     padding: 10px 20px;
     font-size: 1rem;
     cursor: pointer;
-    background: #ccc; /* Memberikan warna default pada tombol */
+    background: #007bff; /* Biru utama */
     border: none;
     border-radius: 16px;
-    color: #333;
+    color: #fff; /* Teks putih */
     transition: background 0.2s;
 }
 .pesan-btn:hover {
-    background: #b3b3b3;
+    background: #0056b3; /* Biru lebih gelap saat hover */
 } 

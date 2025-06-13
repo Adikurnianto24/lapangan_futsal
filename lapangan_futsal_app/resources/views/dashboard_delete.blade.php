@@ -3,7 +3,7 @@
 @if(isset($lapangan) && count($lapangan) > 0)
     <div class="lapangan-list-rows">
         @foreach($lapangan as $index => $l)
-        <div class="lapangan-row-box" style="display:flex;align-items:stretch;">
+        <div class="lapangan-row-box">
             <div class="lapangan-row-img">
                 @if($l->gambar)
                     @php
@@ -15,7 +15,7 @@
                     <div class="lapangan-img-placeholder">Lapangan {{ $index+1 }}</div>
                 @endif
             </div>
-            <div class="lapangan-row-info" style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+            <div class="lapangan-row-info">
                 <div class="lapangan-row-title">Lapangan {{ $index+1 }}</div>
                 @php
                     $jamList = [
@@ -24,22 +24,13 @@
                     ];
                     $jamTidakTersedia = $l->waktu_booking ? array_map('trim', explode(',', $l->waktu_booking)) : [];
                 @endphp
-                <div class="lapangan-row-jam">
-                    <div>
-                        @foreach(array_slice($jamList,0,5) as $jam)
-                            <span class="{{ in_array($jam, $jamTidakTersedia) ? 'jam-tidak-tersedia' : 'jam-tersedia' }}" style="border-radius:6px;padding:2px 8px;">{{ $jam }}</span>
-                            &nbsp;
-                        @endforeach
-                    </div>
-                    <div>
-                        @foreach(array_slice($jamList,5,5) as $jam)
-                            <span class="{{ in_array($jam, $jamTidakTersedia) ? 'jam-tidak-tersedia' : 'jam-tersedia' }}" style="border-radius:6px;padding:2px 8px;">{{ $jam }}</span>
-                            &nbsp;
-                        @endforeach
-                    </div>
+                <div class="lapangan-row-jam-grid">
+                    @foreach($jamList as $jam)
+                        <span class="{{ in_array($jam, $jamTidakTersedia) ? 'jam-tidak-tersedia' : 'jam-tersedia' }}">{{ $jam }}</span>
+                    @endforeach
                 </div>
             </div>
-            <form method="POST" action="{{ route('lapangan.delete', $l->id_lapangan) }}" style="display:flex;align-items:center;justify-content:center;margin-left:24px;margin-right:32px;">
+            <form method="POST" action="{{ route('lapangan.delete', $l->id_lapangan) }}">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="delete-btn">Delete</button>
@@ -48,4 +39,18 @@
         @endforeach
     </div>
 @endif
-@endsection 
+@endsection
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil dihapus',
+            text: '',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif 

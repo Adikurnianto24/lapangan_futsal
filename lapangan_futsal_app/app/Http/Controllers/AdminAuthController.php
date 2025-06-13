@@ -13,7 +13,10 @@ class AdminAuthController extends Controller
         if (session('admin_id')) {
             return redirect('/dashboard');
         }
-        return view('login');
+        return response()->view('login')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
     public function login(Request $request)

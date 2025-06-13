@@ -56,6 +56,7 @@ body::before {
 }
 .login-form {
     width: 100%;
+    margin-bottom: 0;
 }
 .form-group {
     margin-bottom: 18px;
@@ -87,26 +88,40 @@ input[type="text"]:focus, input[type="password"]:focus {
     border: 2px solid #1976d2;
     box-shadow: 0 0 0 2px #90caf9;
 }
-.login-btn {
-    width: 140px;
-    padding: 12px 0;
-    background: linear-gradient(90deg, #42a5f5 60%, #1976d2 100%);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    font-size: 1.15rem;
-    margin: 24px auto 0 auto;
+.login-btn, .login-home-btn {
     display: block;
-    cursor: pointer;
-    font-family: 'Poppins', Arial, sans-serif;
+    width: 100%;
+    max-width: 250px;
+    margin: 18px auto 0 auto;
+    padding: 14px 0;
+    font-size: 1.25rem;
     font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #2196f3 0%, #0056b3 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(33,150,243,0.10);
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    text-align: center;
+    text-decoration: none;
     letter-spacing: 1px;
-    box-shadow: 0 2px 12px 0 rgba(25,118,210,0.13);
-    transition: background 0.2s, transform 0.2s;
 }
-.login-btn:hover {
-    background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
-    transform: translateY(-2px) scale(1.04);
+.login-btn:hover, .login-home-btn:hover {
+    background: linear-gradient(90deg, #0056b3 0%, #2196f3 100%);
+    box-shadow: 0 6px 24px rgba(33,150,243,0.18);
+    transform: translateY(-2px) scale(1.03);
+    color: #fff;
+    text-decoration: none;
+}
+.login-home-btn {
+    margin-top: 12px;
+    margin-bottom: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    background: linear-gradient(90deg, #0056b3 0%, #2196f3 100%);
+    border: none;
+    outline: none;
 }
 @media (max-width: 600px) {
     .login-container {

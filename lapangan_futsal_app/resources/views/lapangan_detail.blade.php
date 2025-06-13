@@ -47,25 +47,83 @@
                 $jamTidakTersedia = $lapangan->waktu_booking ? array_map('trim', explode(',', $lapangan->waktu_booking)) : [];
             @endphp
 
-            <div class="jam-list-container">
-                @foreach(array_slice($jamList,0,5) as $jam)
-                    <span class="{{ in_array($jam, $jamTidakTersedia) ? 'jam-tidak-tersedia' : 'jam-tersedia' }}">
-                        {{ $jam }}
-                    </span>
-                @endforeach
-            </div>
-            <div class="jam-list-container">
-                @foreach(array_slice($jamList,5,5) as $jam)
-                    <span class="{{ in_array($jam, $jamTidakTersedia) ? 'jam-tidak-tersedia' : 'jam-tersedia' }}">
-                        {{ $jam }}
-                    </span>
-                @endforeach
-            </div>
+            <form id="jam-form">
+                <div class="jam-list-container" id="jam-list-1">
+                    @foreach(array_slice($jamList,0,5) as $jam)
+                        @if(!in_array($jam, $jamTidakTersedia))
+                            <span class="jam-tersedia selectable-jam" data-jam="{{ $jam }}">{{ $jam }}</span>
+                        @else
+                            <span class="jam-tidak-tersedia">{{ $jam }}</span>
+                        @endif
+                    @endforeach
+                </div>
+                <div class="jam-list-container" id="jam-list-2">
+                    @foreach(array_slice($jamList,5,5) as $jam)
+                        @if(!in_array($jam, $jamTidakTersedia))
+                            <span class="jam-tersedia selectable-jam" data-jam="{{ $jam }}">{{ $jam }}</span>
+                        @else
+                            <span class="jam-tidak-tersedia">{{ $jam }}</span>
+                        @endif
+                    @endforeach
+                </div>
+            </form>
 
-            <button class="pesan-btn">Pesan Sekarang</button>
+            <a id="wa-link" href="#" target="_blank" style="text-decoration:none;">
+                <button class="pesan-btn">Pesan Sekarang</button>
+            </a>
         @else
             <p>Lapangan tidak ditemukan.</p>
         @endif
     </div>
+
+    <style>
+        .jam-list-container {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .selectable-jam.selected {
+            background: #4CAF50;
+            color: #fff;
+            border-radius: 5px;
+            padding: 2px 8px;
+        }
+        .selectable-jam {
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle select jam
+            let selectedJam = null;
+            document.querySelectorAll('.selectable-jam').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    document.querySelectorAll('.selectable-jam').forEach(function(span) {
+                        span.classList.remove('selected');
+                    });
+                    el.classList.add('selected');
+                    selectedJam = el.getAttribute('data-jam');
+                });
+            });
+            // Handle WA button
+            const btn = document.getElementById('wa-link');
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const namaLapangan = @json($lapangan->nama_lapangan ?? '');
+                const nomorLapangan = @json($nomor_lapangan ?? '');
+                if (!selectedJam) {
+                    alert('Silakan pilih jam booking terlebih dahulu!');
+                    return;
+                }
+                const pesan = encodeURIComponent(
+                    `Halo, saya ingin booking Lapangan ${nomorLapangan} (${namaLapangan}) untuk jam ${selectedJam}.`
+                );
+                const waUrl = `https://wa.me/6285893110319?text=${pesan}`;
+                window.open(waUrl, '_blank');
+            });
+        });
+    </script>
 </body>
 </html> 

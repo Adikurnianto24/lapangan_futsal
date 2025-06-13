@@ -7,7 +7,8 @@ body {
 }
 .container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
 }
 .sidebar {
     width: 220px;
@@ -16,6 +17,10 @@ body {
     flex-direction: column;
     justify-content: space-between;
     border-right: 2px solid #003366;
+    min-height: 100vh;
+    height: 100vh;
+    position: sticky;
+    top: 0;
 }
 .sidebar-top {
     padding: 0;
@@ -106,6 +111,9 @@ body {
     background: #d3d3d3;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
 }
 .header {
     height: 56px;
@@ -355,13 +363,17 @@ body {
 }
 .lapangan-row-box {
     display: flex;
-    flex-direction: row;
+    align-items: center;
     background: #fff;
     border-radius: 18px;
     box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
     overflow: hidden;
     margin-bottom: 0;
     min-height: 120px;
+    max-width: 1000px;
+    width: 100%;
+    padding: 0 24px;
+    gap: 24px;
 }
 .lapangan-row-img {
     width: 180px;
@@ -384,8 +396,9 @@ body {
     font-family: 'Poppins', Arial, sans-serif;
 }
 .lapangan-row-info {
-    flex: 1;
-    padding: 18px 24px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 18px 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -465,12 +478,13 @@ select.input-field:focus {
     background: #e74c3c;
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 8px 20px;
-    font-size: 1rem;
-    font-weight: bold;
+    border-radius: 10px;
+    padding: 10px 28px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
     transition: background 0.2s;
+    min-width: 110px;
 }
 .delete-btn:hover {
     background: #c0392b;
@@ -501,4 +515,10 @@ select.input-field:focus {
         padding: 24px 10px;
         max-width: 98vw;
     }
+}
+
+form[action*="lapangan.delete"] {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
 } 
