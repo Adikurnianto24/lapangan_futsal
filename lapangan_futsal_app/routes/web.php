@@ -50,3 +50,9 @@ Route::post('/lapangan/update/{id}', [LapanganController::class, 'update'])->nam
 Route::get('/lapangan/{id}', [LapanganController::class, 'showDetail'])->name('lapangan.detail');
 
 Route::post('/nota/store', [LapanganController::class, 'storeNota'])->name('nota.store');
+Route::patch('/nota/{id}', [LapanganController::class, 'updateNota'])->name('nota.update');
+Route::delete('/nota/{id}', [LapanganController::class, 'destroyNota'])->name('nota.destroy');
+
+Route::get('/nota', function() {
+    return redirect()->route('dashboard.nota');
+});

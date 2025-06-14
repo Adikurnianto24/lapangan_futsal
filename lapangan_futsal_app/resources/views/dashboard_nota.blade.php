@@ -27,11 +27,15 @@
                 </div>
                 <div class="nota-card-action">
                     <a href="#" class="ubah-nota-btn"
-                       data-id="{{ $n->id }}"
+                       data-id="{{ $n->id_nota }}"
                        data-nama="{{ $n->nama_pemesan }}"
                        data-kontak="{{ $n->kontak_pemesan }}"
                        data-waktu="{{ $n->waktu_pemesanan }}">Ubah</a>
-                    <a href="#">Hapus</a>
+                    <form method="POST" action="/nota/{{ $n->id_nota }}" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus nota ini?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" style="background:none;border:none;color:#d00;cursor:pointer;">Hapus</button>
+                    </form>
                 </div>
             </div>
         @endforeach
@@ -113,7 +117,13 @@
             document.getElementById('lapangan-group').style.display = 'none';
             // Set form action for update (assume route: nota.update, method POST with _method PATCH)
             var form = document.querySelector('.tambah-nota-form');
-            form.action = '/nota/' + this.getAttribute('data-id');
+            var notaId = this.getAttribute('data-id');
+            if (notaId && notaId.length > 0) {
+                form.action = '/nota/' + notaId.replace(/\/+$/, '');
+            } else {
+                alert('ID nota tidak ditemukan!');
+                return;
+            }
             // Add hidden _method input for PATCH
             if (!form.querySelector('input[name="_method"]')) {
                 var methodInput = document.createElement('input');
@@ -136,4 +146,17 @@
         }
     });
 </script>
+@if(session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '{{ session('success') }}',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
 @endsection 

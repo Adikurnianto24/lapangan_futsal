@@ -62,10 +62,14 @@
                             ];
                             $statusJam = $l->status_jam ? json_decode($l->status_jam, true) : [];
                             $jamTidakTersedia = [];
-                            foreach ($jamList as $jam) {
-                                if (isset($statusJam[$jam]) && $statusJam[$jam] === 'Tidak tersedia') {
-                                    $jamTidakTersedia[] = $jam;
+                            if (!empty($statusJam)) {
+                                foreach ($jamList as $jam) {
+                                    if (isset($statusJam[$jam]) && $statusJam[$jam] === 'Tidak tersedia') {
+                                        $jamTidakTersedia[] = $jam;
+                                    }
                                 }
+                            } else if (!empty($l->waktu_booking)) {
+                                $jamTidakTersedia = array_map('trim', explode(',', $l->waktu_booking));
                             }
                         @endphp
                         <div class="lapangan-row-jam-grid">

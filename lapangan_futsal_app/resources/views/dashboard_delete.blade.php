@@ -30,7 +30,7 @@
                     @endforeach
                 </div>
             </div>
-            <form method="POST" action="{{ route('lapangan.delete', $l->id_lapangan) }}">
+            <form method="POST" action="{{ route('lapangan.delete', $l->id_lapangan) }}" onsubmit="return confirm('Yakin ingin menghapus lapangan ini?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="delete-btn">Delete</button>

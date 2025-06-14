@@ -142,6 +142,23 @@ class LapanganController extends Controller
         $lapangan->waktu_booking = implode(', ', $daftarJam);
         $lapangan->save();
 
-        return redirect()->back()->with('success', 'Nota berhasil ditambahkan dan waktu booking diupdate!');
+        return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil ditambahkan dan waktu booking diupdate!');
+    }
+
+    public function updateNota(Request $request, $id)
+    {
+        $nota = Nota::findOrFail($id);
+        $nota->nama_pemesan = $request->nama_pemesan;
+        $nota->kontak_pemesan = $request->no_telepon;
+        $nota->waktu_pemesanan = $request->waktu_booking;
+        $nota->save();
+        return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil diubah!');
+    }
+
+    public function destroyNota($id)
+    {
+        $nota = Nota::findOrFail($id);
+        $nota->delete();
+        return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil dihapus!');
     }
 } 

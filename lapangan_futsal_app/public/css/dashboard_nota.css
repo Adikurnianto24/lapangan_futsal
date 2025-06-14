@@ -67,7 +67,8 @@
     box-sizing: border-box;
 }
 .simpan-btn {
-    background: #bdbdbd;
+    background: #007bff;
+    color: #fff;
     border: none;
     border-radius: 10px;
     padding: 10px 38px;
@@ -76,7 +77,7 @@
     transition: background 0.2s;
 }
 .simpan-btn:hover {
-    background: #888;
+    background: #0056b3;
 }
 
 /* Card list nota mirip dashboard utama */
