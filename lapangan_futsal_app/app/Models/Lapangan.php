@@ -12,6 +12,8 @@ class Lapangan extends Model
         'deskripsi_lapangan',
         'status',
         'gambar',
+        'waktu_booking',
+        'status_jam',
     ];
     protected $primaryKey = 'id_lapangan';
 } 

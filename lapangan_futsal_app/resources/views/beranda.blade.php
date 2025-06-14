@@ -97,7 +97,7 @@
     <div class="footer">
         <div class="footer-left">
             <img src="{{ asset('images/maps_logo.png') }}" alt="Maps" class="footer-maps-logo">
-            <span>Lihat lokasi kami disini<br><a href="https://goo.gl/maps/8Qw6Qw2Qw2Qw2Qw2A" target="_blank" class="footer-link">Lihat disini!</a></span>
+            <span>Lihat lokasi kami disini<br><a href="https://maps.app.goo.gl/ebzfvRKxufAjbnou6" target="_blank" class="footer-link">Lihat disini!</a></span>
         </div>
         <div class="footer-center">Anda Sehat, Kami Bisa Makan!</div>
         <div class="footer-right">

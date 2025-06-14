@@ -16,7 +16,7 @@ body {
     width: 95%;
     max-width: 600px; /* Lebih kecil agar tidak terlalu lebar */
     min-width: 320px;
-    margin: 100px auto 32px auto;
+    margin: 140px auto 32px auto;
     background: #fff; /* Latar belakang putih untuk kartu */
     box-shadow: 0 4px 16px rgba(0,0,0,0.10); /* Bayangan kartu */
     border-radius: 12px; /* Sudut melengkung */

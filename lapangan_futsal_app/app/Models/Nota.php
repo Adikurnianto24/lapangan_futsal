@@ -12,6 +12,9 @@ class Nota extends Model
         'nama_pemesan',
         'kontak_pemesan',
         'waktu_pemesanan',
+        'mulai',
+        'selesai',
+        'status',
     ];
     protected $primaryKey = 'id_nota';
 

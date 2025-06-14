@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Lapangan;
 use App\Models\Nota;
+use Carbon\Carbon;
 
 class LapanganController extends Controller
 {
@@ -90,15 +91,15 @@ class LapanganController extends Controller
             } else if ($status === 'Tersedia' && in_array($jam, $daftarJam)) {
                 $daftarJam = array_diff($daftarJam, [$jam]);
             }
-            $lapangan->waktu_booking = implode(', ', $daftarJam);
+            $lapangan->waktu_booking = implode(', ', array_values($daftarJam));
         }
         // Jika tidak diisi, biarkan status_jam lama
 
         // Field lain tetap seperti biasa
         $lapangan->nama_lapangan = $request->judul;
         $lapangan->deskripsi_lapangan = $request->deskripsi;
-        // Update status hanya jika diisi
-        if ($status) {
+        // Hanya perbarui status global jika pengisian tidak spesifik jam
+        if (!$jam && $status) {
             $lapangan->status = $status;
         }
         if ($request->hasFile('gambar')) {
@@ -133,12 +134,35 @@ class LapanganController extends Controller
             'waktu_booking' => 'required',
         ]);
 
+        // Cek ketersediaan jam terlebih dulu (hindari double-booking)
+        $lapanganCek = Lapangan::findOrFail($request->lapangan);
+        $statusJamExist = $lapanganCek->status_jam ? json_decode($lapanganCek->status_jam, true) : [];
+        if (isset($statusJamExist[$request->waktu_booking]) && $statusJamExist[$request->waktu_booking] === 'Tidak tersedia') {
+            return back()->withErrors(['waktu_booking' => 'Jam tersebut sudah terisi'])->withInput();
+        }
+
+        // Hitung waktu mulai & selesai (berbasis tanggal hari ini)
+        $today = now();
+        [$startStr, $endStr] = array_map('trim', explode('-', str_replace(' ', '', $request->waktu_booking)));
+        // Convert format 10.00 menjadi 10:00
+        $startStr = str_replace('.', ':', $startStr);
+        $endStr   = str_replace('.', ':', $endStr);
+        $mulai   = $today->copy()->setTimeFromTimeString($startStr);
+        // Jika endStr < startStr (tidak mungkin utk format 1 jam, tapi jaga-jaga)
+        $selesai = $today->copy()->setTimeFromTimeString($endStr);
+        if ($selesai->lessThanOrEqualTo($mulai)) {
+            $selesai = $mulai->copy()->addHour();
+        }
+
         // Simpan ke tb_nota
         Nota::create([
-            'id_lapangan' => $request->lapangan,
-            'nama_pemesan' => $request->nama_pemesan,
-            'kontak_pemesan' => $request->no_telepon,
-            'waktu_pemesanan' => $request->waktu_booking,
+            'id_lapangan'      => $request->lapangan,
+            'nama_pemesan'     => $request->nama_pemesan,
+            'kontak_pemesan'   => $request->no_telepon,
+            'waktu_pemesanan'  => $request->waktu_booking,
+            'mulai'            => $mulai,
+            'selesai'          => $selesai,
+            'status'           => 'booked',
         ]);
 
         // Update waktu_booking lapangan (tambah jam ke daftar tidak tersedia)
@@ -150,7 +174,7 @@ class LapanganController extends Controller
         if (!in_array($request->waktu_booking, $daftarJam)) {
             $daftarJam[] = $request->waktu_booking;
         }
-        $lapangan->waktu_booking = implode(', ', $daftarJam);
+        $lapangan->waktu_booking = implode(', ', array_values($daftarJam));
         // Update status_jam juga
         $statusJam = [];
         if ($lapangan->status_jam) {
@@ -169,10 +193,29 @@ class LapanganController extends Controller
         $lapangan = Lapangan::findOrFail($nota->id_lapangan);
         $jamLama = $nota->waktu_pemesanan;
         $jamBaru = $request->waktu_booking;
+        // Cek ketersediaan jam baru terlebih dulu
+        $statusJamExist = $lapangan->status_jam ? json_decode($lapangan->status_jam, true) : [];
+        if (isset($statusJamExist[$jamBaru]) && $statusJamExist[$jamBaru] === 'Tidak tersedia' && $jamBaru !== $jamLama) {
+            return back()->withErrors(['waktu_booking' => 'Jam tersebut sudah terisi'])->withInput();
+        }
+
+        // Hitung ulang waktu mulai & selesai dgn tanggal hari ini
+        $today = now();
+        [$startStr, $endStr] = array_map('trim', explode('-', str_replace(' ', '', $jamBaru)));
+        $startStr = str_replace('.', ':', $startStr);
+        $endStr   = str_replace('.', ':', $endStr);
+        $mulai   = $today->copy()->setTimeFromTimeString($startStr);
+        $selesai = $today->copy()->setTimeFromTimeString($endStr);
+        if ($selesai->lessThanOrEqualTo($mulai)) {
+            $selesai = $mulai->copy()->addHour();
+        }
+
         // Update nota
-        $nota->nama_pemesan = $request->nama_pemesan;
-        $nota->kontak_pemesan = $request->no_telepon;
-        $nota->waktu_pemesanan = $jamBaru;
+        $nota->nama_pemesan     = $request->nama_pemesan;
+        $nota->kontak_pemesan   = $request->no_telepon;
+        $nota->waktu_pemesanan  = $jamBaru;
+        $nota->mulai            = $mulai;
+        $nota->selesai          = $selesai;
         $nota->save();
         // Update status_jam lapangan
         $statusJam = $lapangan->status_jam ? json_decode($lapangan->status_jam, true) : [];
@@ -187,11 +230,11 @@ class LapanganController extends Controller
             $daftarJam = array_map('trim', explode(',', $lapangan->waktu_booking));
         }
         // Hapus jam lama, tambah jam baru
-        $daftarJam = array_diff($daftarJam, [$jamLama]);
+        $daftarJam = array_values(array_diff($daftarJam, [$jamLama]));
         if (!in_array($jamBaru, $daftarJam)) {
             $daftarJam[] = $jamBaru;
         }
-        $lapangan->waktu_booking = implode(', ', $daftarJam);
+        $lapangan->waktu_booking = implode(', ', array_values($daftarJam));
         $lapangan->save();
         return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil diubah!');
     }
@@ -199,6 +242,29 @@ class LapanganController extends Controller
     public function destroyNota($id)
     {
         $nota = Nota::findOrFail($id);
+
+        // Pastikan referensi lapangan ada
+        if ($nota) {
+            $lapangan = Lapangan::find($nota->id_lapangan);
+            if ($lapangan) {
+                $jam = $nota->waktu_pemesanan;
+
+                // Bersihkan status_jam
+                $statusJam = $lapangan->status_jam ? json_decode($lapangan->status_jam, true) : [];
+                if (isset($statusJam[$jam])) {
+                    unset($statusJam[$jam]);
+                    $lapangan->status_jam = json_encode($statusJam);
+                }
+
+                // Bersihkan waktu_booking
+                $daftarJam = $lapangan->waktu_booking ? array_map('trim', explode(',', $lapangan->waktu_booking)) : [];
+                $daftarJam = array_values(array_diff($daftarJam, [$jam]));
+                $lapangan->waktu_booking = implode(', ', $daftarJam);
+
+                $lapangan->save();
+            }
+        }
+
         $nota->delete();
         return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil dihapus!');
     }

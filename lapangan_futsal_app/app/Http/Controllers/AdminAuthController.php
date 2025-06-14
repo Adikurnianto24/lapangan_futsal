@@ -27,7 +27,7 @@ class AdminAuthController extends Controller
         ]);
 
         $admin = Admin::where('nama_pengguna', $request->username)->first();
-        if ($admin && $request->password === $admin->katasandi) { // Ganti dengan Hash::check jika sudah hash
+        if ($admin && (Hash::check($request->password, $admin->katasandi) || $request->password === $admin->katasandi)) { // Hash::check lebih aman, sisakan fallback sementara
             session(['admin_id' => $admin->id_admin]);
             return redirect('/dashboard')->withHeaders([
                 'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
