@@ -80,6 +80,17 @@ class LapanganController extends Controller
         if ($jam && $status) {
             $statusJam[$jam] = $status;
             $lapangan->status_jam = json_encode($statusJam);
+            // Sinkronkan juga ke waktu_booking
+            $daftarJam = [];
+            if ($lapangan->waktu_booking) {
+                $daftarJam = array_map('trim', explode(',', $lapangan->waktu_booking));
+            }
+            if ($status === 'Tidak tersedia' && !in_array($jam, $daftarJam)) {
+                $daftarJam[] = $jam;
+            } else if ($status === 'Tersedia' && in_array($jam, $daftarJam)) {
+                $daftarJam = array_diff($daftarJam, [$jam]);
+            }
+            $lapangan->waktu_booking = implode(', ', $daftarJam);
         }
         // Jika tidak diisi, biarkan status_jam lama
 
@@ -155,10 +166,33 @@ class LapanganController extends Controller
     public function updateNota(Request $request, $id)
     {
         $nota = Nota::findOrFail($id);
+        $lapangan = Lapangan::findOrFail($nota->id_lapangan);
+        $jamLama = $nota->waktu_pemesanan;
+        $jamBaru = $request->waktu_booking;
+        // Update nota
         $nota->nama_pemesan = $request->nama_pemesan;
         $nota->kontak_pemesan = $request->no_telepon;
-        $nota->waktu_pemesanan = $request->waktu_booking;
+        $nota->waktu_pemesanan = $jamBaru;
         $nota->save();
+        // Update status_jam lapangan
+        $statusJam = $lapangan->status_jam ? json_decode($lapangan->status_jam, true) : [];
+        if ($jamLama && isset($statusJam[$jamLama])) {
+            unset($statusJam[$jamLama]);
+        }
+        $statusJam[$jamBaru] = 'Tidak tersedia';
+        $lapangan->status_jam = json_encode($statusJam);
+        // Update waktu_booking lapangan
+        $daftarJam = [];
+        if ($lapangan->waktu_booking) {
+            $daftarJam = array_map('trim', explode(',', $lapangan->waktu_booking));
+        }
+        // Hapus jam lama, tambah jam baru
+        $daftarJam = array_diff($daftarJam, [$jamLama]);
+        if (!in_array($jamBaru, $daftarJam)) {
+            $daftarJam[] = $jamBaru;
+        }
+        $lapangan->waktu_booking = implode(', ', $daftarJam);
+        $lapangan->save();
         return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil diubah!');
     }
 
