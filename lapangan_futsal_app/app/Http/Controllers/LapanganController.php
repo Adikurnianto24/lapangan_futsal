@@ -140,6 +140,13 @@ class LapanganController extends Controller
             $daftarJam[] = $request->waktu_booking;
         }
         $lapangan->waktu_booking = implode(', ', $daftarJam);
+        // Update status_jam juga
+        $statusJam = [];
+        if ($lapangan->status_jam) {
+            $statusJam = json_decode($lapangan->status_jam, true) ?? [];
+        }
+        $statusJam[$request->waktu_booking] = 'Tidak tersedia';
+        $lapangan->status_jam = json_encode($statusJam);
         $lapangan->save();
 
         return redirect()->route('dashboard.nota')->with('success', 'Nota berhasil ditambahkan dan waktu booking diupdate!');

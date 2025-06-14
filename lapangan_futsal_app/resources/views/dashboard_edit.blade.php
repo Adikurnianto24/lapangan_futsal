@@ -1,5 +1,11 @@
 @extends('layouts.dashboard')
 @section('content')
+@php
+    $jamList = [
+        '10.00 - 11.00', '11.00 - 12.00', '12.00 - 13.00', '13.00 - 14.00', '14.00 - 15.00',
+        '15.00 - 16.00', '16.00 - 17.00', '17.00 - 18.00', '18.00 - 19.00', '19.00 - 20.00'
+    ];
+@endphp
 <div style="display:flex;justify-content:center;align-items:flex-start;width:100%;min-height:600px;">
     <div class="content-card" style="width:100%;max-width:400px;margin:40px auto 0 auto;display:flex;flex-direction:column;align-items:center;">
         <div class="edit-dropdown-row" style="width:100%;margin-bottom:20px;position:relative;">
@@ -47,16 +53,9 @@
                 <div class="select-wrapper">
                     <select class="input-field" name="waktu_booking" id="editWaktuBooking" style="width:100%;">
                         <option value="" selected disabled>Pilih waktu booking...</option>
-                        <option value="10.00 - 11.00">10.00 - 11.00</option>
-                        <option value="11.00 - 12.00">11.00 - 12.00</option>
-                        <option value="12.00 - 13.00">12.00 - 13.00</option>
-                        <option value="13.00 - 14.00">13.00 - 14.00</option>
-                        <option value="14.00 - 15.00">14.00 - 15.00</option>
-                        <option value="15.00 - 16.00">15.00 - 16.00</option>
-                        <option value="16.00 - 17.00">16.00 - 17.00</option>
-                        <option value="17.00 - 18.00">17.00 - 18.00</option>
-                        <option value="18.00 - 19.00">18.00 - 19.00</option>
-                        <option value="19.00 - 20.00">19.00 - 20.00</option>
+                        @foreach($jamList as $jam)
+                            <option value="{{ $jam }}" class="option-jam">{{ $jam }}</option>
+                        @endforeach
                     </select>
                     <span class="select-arrow">&#9660;</span>
                 </div>
@@ -67,6 +66,12 @@
         </form>
     </div>
 </div>
+<style>
+    .option-jam.tidak-tersedia {
+        background: #e74c3c !important;
+        color: #fff !important;
+    }
+</style>
 <script>
 // Custom dropdown
 const editDropdown = document.getElementById('editDropdown');
@@ -99,11 +104,23 @@ document.querySelectorAll('.lapangan-dropdown-item').forEach(function(item) {
         document.getElementById('editImgPreview').innerHTML = imgHtml;
         // Set form action
         document.getElementById('editForm').action = '/lapangan/update/' + item.getAttribute('data-id');
-        // Centang jam tidak tersedia
+        // Highlight option merah jika tidak tersedia
         let statusJam = {};
         try { statusJam = JSON.parse(item.getAttribute('data-status_jam') || '{}'); } catch(e) {}
-        document.querySelectorAll('input[name="jam_tidak_tersedia[]"]').forEach(function(cb) {
-            cb.checked = (statusJam[cb.value] === 'Tidak tersedia');
+        let jamTidakTersedia = [];
+        if (Object.keys(statusJam).length > 0) {
+            for (const jam in statusJam) {
+                if (statusJam[jam] === 'Tidak tersedia') jamTidakTersedia.push(jam);
+            }
+        } else if (item.getAttribute('data-waktu_booking')) {
+            jamTidakTersedia = item.getAttribute('data-waktu_booking').split(',').map(j => j.trim());
+        }
+        document.querySelectorAll('#editWaktuBooking option.option-jam').forEach(function(opt) {
+            if (jamTidakTersedia.includes(opt.value)) {
+                opt.classList.add('tidak-tersedia');
+            } else {
+                opt.classList.remove('tidak-tersedia');
+            }
         });
     });
 });

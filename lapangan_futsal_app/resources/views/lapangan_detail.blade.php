@@ -44,7 +44,17 @@
                     '10.00 - 11.00', '11.00 - 12.00', '12.00 - 13.00', '13.00 - 14.00', '14.00 - 15.00',
                     '15.00 - 16.00', '16.00 - 17.00', '17.00 - 18.00', '18.00 - 19.00', '19.00 - 20.00'
                 ];
-                $jamTidakTersedia = $lapangan->waktu_booking ? array_map('trim', explode(',', $lapangan->waktu_booking)) : [];
+                $statusJam = $lapangan->status_jam ? json_decode($lapangan->status_jam, true) : [];
+                $jamTidakTersedia = [];
+                if (!empty($statusJam)) {
+                    foreach ($jamList as $jam) {
+                        if (isset($statusJam[$jam]) && $statusJam[$jam] === 'Tidak tersedia') {
+                            $jamTidakTersedia[] = $jam;
+                        }
+                    }
+                } else if (!empty($lapangan->waktu_booking)) {
+                    $jamTidakTersedia = array_map('trim', explode(',', $lapangan->waktu_booking));
+                }
             @endphp
 
             <form id="jam-form">

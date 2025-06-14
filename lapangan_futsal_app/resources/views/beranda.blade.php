@@ -45,6 +45,23 @@
             <div class="lapangan-scroll" id="lapanganScroll" style="overflow:visible;gap:0;justify-content:center;">
                 @if(isset($lapangan) && count($lapangan) > 0)
                     @foreach($lapangan as $index => $l)
+                        @php
+                            $jamList = [
+                                '10.00 - 11.00', '11.00 - 12.00', '12.00 - 13.00', '13.00 - 14.00', '14.00 - 15.00',
+                                '15.00 - 16.00', '16.00 - 17.00', '17.00 - 18.00', '18.00 - 19.00', '19.00 - 20.00'
+                            ];
+                            $statusJam = $l->status_jam ? json_decode($l->status_jam, true) : [];
+                            $jamTidakTersedia = [];
+                            if (!empty($statusJam)) {
+                                foreach ($jamList as $jam) {
+                                    if (isset($statusJam[$jam]) && $statusJam[$jam] === 'Tidak tersedia') {
+                                        $jamTidakTersedia[] = $jam;
+                                    }
+                                }
+                            } else if (!empty($l->waktu_booking)) {
+                                $jamTidakTersedia = array_map('trim', explode(',', $l->waktu_booking));
+                            }
+                        @endphp
                         <a href="/lapangan/{{ $l->id_lapangan }}" class="lapangan-link lapangan-carousel-item" data-index="{{ $index }}" style="display:{{ $index === 0 ? 'block' : 'none' }};">
                             <div class="lapangan-widget">
                                 <div class="lapangan-default-title">LAPANGAN {{ $index + 1 }}</div>

@@ -202,18 +202,18 @@ body {
     background: none;
     height: 100%;
 }
-.tambah-btn {
-    background: #ccc;
+.tambah-btn, .edit-img-btn, .edit-update-btn {
+    background: #007bff !important;
+    color: #fff !important;
     border: none;
     border-radius: 10px;
-    padding: 10px 32px;
-    font-size: 1.05rem;
-    font-weight: 500;
+    padding: 10px 38px;
+    font-size: 1rem;
     cursor: pointer;
     transition: background 0.2s;
 }
-.tambah-btn:hover {
-    background: #b3b3b3;
+.tambah-btn:hover, .edit-img-btn:hover, .edit-update-btn:hover {
+    background: #0056b3 !important;
 }
 #form-input-lapangan {
     max-width: 900px;
